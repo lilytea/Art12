@@ -85,7 +85,7 @@ function draw() {
     shape.update();
   }
 
-  // Draw the seesaw scale in the rightmost section
+  // Draw the seesaw scale in the center of the rightmost section
   drawSeesaw();
 }
 
@@ -113,8 +113,9 @@ function mouseReleased() {
 }
 
 function drawSeesaw() {
+  // Position the scale in the center of the right section
   let scaleX = 2 * sectionWidth + (sectionWidth - 100) / 2;
-  let scaleY = (height - 100) / 2;
+  let scaleY = (height - 100) / 2; // Center vertically in the right section
   let scaleWidth = 100;
   let baseHeight = 5;
   let platformHeight = 20;
