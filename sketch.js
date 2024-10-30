@@ -79,7 +79,7 @@ function draw() {
 function windowResized() {
   // Resize the canvas to fit the new window dimensions
   resizeCanvas(windowWidth, windowHeight);
-
+}
   // }
 function mousePressed() {
   for (let i = shapes.length - 1; i >= 0; i--) {
