@@ -3,30 +3,29 @@ let leftWeight = 0;
 let rightWeight = 0;
 let draggingShape = null;
 
-// Canvas section setup
-let middleSectionWidth = 314;
-let sideSectionWidth = middleSectionWidth / 2;
+// Middle section and inner rectangle dimensions
+let middleSectionWidth;
+let middleSectionHeight;
+let sideSectionWidth;
+let innerRectWidth;
+let innerRectHeight;
 
-// Rectangle with an 11:13 aspect ratio (horizontal orientation)
-let rectHeight = 220;
-let rectWidth = rectHeight * (13 / 11);
 let images = [];
 let scaleFactor = 0.09;
 
 function preload() {
   for (let i = 1; i <= 20; i++) {
     images[i] = loadImage('https://raw.githubusercontent.com/lilytea/Art12/main/img' + i + '.png', img => {
-      img.resize(img.width * scaleFactor, img.height * scaleFactor); // Scale down proportionally
+      img.resize(img.width * scaleFactor, img.height * scaleFactor);
     });
   }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  updateSectionDimensions();
 
-  let positions = [];  // Track positions to avoid overlap
-
-  // Scatter shapes in the left section with minimal overlap
+  let positions = [];
   for (let i = 1; i <= 20; i++) {
     let x, y;
     let overlapping;
@@ -37,7 +36,6 @@ function setup() {
       x = random(0, sideSectionWidth - images[i].width);
       y = random(0, height - images[i].height);
 
-      // Check for overlap with existing shapes
       for (let pos of positions) {
         let w = images[i].width;
         let h = images[i].height;
@@ -49,12 +47,10 @@ function setup() {
       attempts++;
     } while (overlapping && attempts < 100);
 
-    // Save the position and dimensions to avoid overlap
     positions.push({ x: x, y: y, width: images[i].width, height: images[i].height });
 
-    // Create the shape, analyze it for area and density, and add it to shapes array
     let shape = new DraggableShape(x, y, images[i]);
-    shape.analyzeShape();  // Determine area, density, and color darkness
+    shape.analyzeShape();
     shapes.push(shape);
   }
 }
@@ -62,8 +58,18 @@ function setup() {
 function draw() {
   background(240);
 
-  // Draw the 11:13 rectangle in the middle section
-  drawWeightDetectionRectangle();
+  // Draw the middle section with calculated dimensions
+  fill(200, 200, 255, 150);
+  stroke(0);
+  let middleSectionX = (width - middleSectionWidth) / 2;
+  let middleSectionY = (height - middleSectionHeight) / 2;
+  rect(middleSectionX, middleSectionY, middleSectionWidth, middleSectionHeight);
+
+  // Draw the inner rectangle inside the middle section
+  fill(150, 150, 200, 100);
+  let innerRectX = middleSectionX + (middleSectionWidth - innerRectWidth) / 2;
+  let innerRectY = middleSectionY + (middleSectionHeight - innerRectHeight) / 2;
+  rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
   // Draw all shapes
   for (let shape of shapes) {
@@ -75,10 +81,27 @@ function draw() {
   drawSeesaw();
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+function updateSectionDimensions() {
+  // Middle section dimensions based on 11:13 aspect ratio
+  if (windowWidth / windowHeight > 11 / 13) {
+    middleSectionHeight = windowHeight * 0.8;
+    middleSectionWidth = middleSectionHeight * (11 / 13);
+  } else {
+    middleSectionWidth = windowWidth * 0.8;
+    middleSectionHeight = middleSectionWidth * (13 / 11);
+  }
+
+  sideSectionWidth = middleSectionWidth / 2;
+
+  // Inner rectangle dimensions as a proportion of the middle section
+  innerRectWidth = middleSectionWidth * 0.9;
+  innerRectHeight = middleSectionHeight * 0.9;
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  updateSectionDimensions();
+}
 
 function mousePressed() {
   for (let i = shapes.length - 1; i >= 0; i--) {
@@ -98,85 +121,7 @@ function mouseReleased() {
   }
 }
 
-// Draw a horizontal rectangle with an 11:13 aspect ratio in the middle section
-function drawWeightDetectionRectangle() {
-  fill(200, 200, 255, 150);
-  stroke(0);
-
-  let rectX = sideSectionWidth + (middleSectionWidth - rectWidth) / 2;
-  let rectY = (height - rectHeight) / 2;
-
-  rect(rectX, rectY, rectWidth, rectHeight);
-  drawDottedLineInRectangle(rectX, rectY, rectWidth, rectHeight);
-}
-
-function drawDottedLineInRectangle(rectX, rectY, rectWidth, rectHeight) {
-  stroke(200);
-  strokeWeight(2);
-  for (let y = rectY; y < rectY + rectHeight; y += 10) {
-    line(rectX + rectWidth / 2, y, rectX + rectWidth / 2, y + 5);
-  }
-}
-
-function calculateWeights() {
-  leftWeight = 0;
-  rightWeight = 0;
-
-  let rectX = sideSectionWidth + (middleSectionWidth - rectWidth) / 2;
-  let sectionWidth = rectWidth / 6;
-
-  for (let shape of shapes) {
-    if (shape.onCanvas()) {
-      let overlapSections = calculateSectionOverlap(shape, rectX, sectionWidth);
-
-      for (let section of overlapSections) {
-        let weightedContribution = shape.weight * section.percentage;
-        let positionMultiplier = (section.index === 1 || section.index === 6) ? 3 : (section.index === 2 || section.index === 5) ? 2 : 1;
-        let adjustedWeight = weightedContribution * positionMultiplier;
-
-        if (section.index <= 3) {
-          leftWeight += adjustedWeight;
-        } else {
-          rightWeight += adjustedWeight;
-        }
-      }
-    }
-  }
-}
-
-function calculateSectionOverlap(shape, rectX, sectionWidth) {
-  let overlapSections = [];
-
-  shape.img.loadPixels();
-  let totalOpaquePixels = 0;
-  let sectionOpaqueCounts = Array(6).fill(0);
-
-  for (let i = 0; i < shape.img.pixels.length; i += 4) {
-    let alpha = shape.img.pixels[i + 3];
-    if (alpha > 128) {
-      let pixelX = shape.x + (i / 4 % shape.img.width);
-      let distanceFromRectX = pixelX - rectX;
-      let section = Math.floor(distanceFromRectX / sectionWidth);
-
-      if (section >= 0 && section < 6) {
-        sectionOpaqueCounts[section]++;
-        totalOpaquePixels++;
-      }
-    }
-  }
-
-  for (let i = 0; i < 6; i++) {
-    if (sectionOpaqueCounts[i] > 0) {
-      overlapSections.push({
-        index: i + 1,
-        percentage: sectionOpaqueCounts[i] / totalOpaquePixels
-      });
-    }
-  }
-
-  return overlapSections;
-}
-
+// Draw the seesaw scale in the rightmost section
 function drawSeesaw() {
   let scaleX = sideSectionWidth + middleSectionWidth + (sideSectionWidth - 100) / 2;
   let scaleY = (height - 100) / 2;
