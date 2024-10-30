@@ -3,10 +3,8 @@ let leftWeight = 0;
 let rightWeight = 0;
 let draggingShape = null;
 
-// Middle section and inner rectangle dimensions
-let middleSectionWidth;
-let middleSectionHeight;
-let sideSectionWidth;
+// Dimensions for sections and inner rectangle
+let sectionWidth;
 let innerRectWidth;
 let innerRectHeight;
 
@@ -33,7 +31,7 @@ function setup() {
 
     do {
       overlapping = false;
-      x = random(0, sideSectionWidth - images[i].width);
+      x = random(0, sectionWidth - images[i].width); // Only within the left section
       y = random(0, height - images[i].height);
 
       for (let pos of positions) {
@@ -58,17 +56,27 @@ function setup() {
 function draw() {
   background(240);
 
-  // Draw the middle section with updated dimensions
-  fill(200, 200, 255, 150);
-  stroke(0);
-  let middleSectionX = (width - middleSectionWidth) / 2;
-  let middleSectionY = (height - middleSectionHeight) / 2;
-  rect(middleSectionX, middleSectionY, middleSectionWidth, middleSectionHeight);
+  // Draw left, middle, and right sections
+  sectionWidth = width / 3;
 
-  // Draw the inner rectangle inside the middle section, maintaining 13:11 ratio horizontally
+  // Left section
+  fill(220);
+  rect(0, 0, sectionWidth, height);
+
+  // Middle section
+  fill(200, 200, 255, 150);
+  rect(sectionWidth, 0, sectionWidth, height);
+
+  // Right section
+  fill(220);
+  rect(2 * sectionWidth, 0, sectionWidth, height);
+
+  // Draw the inner rectangle within the middle section with 11:13 ratio
   fill(150, 150, 200, 100);
-  let innerRectX = middleSectionX + (middleSectionWidth - innerRectWidth) / 2;
-  let innerRectY = middleSectionY + (middleSectionHeight - innerRectHeight) / 2;
+  innerRectWidth = sectionWidth * 0.8;
+  innerRectHeight = innerRectWidth * (11 / 13);
+  let innerRectX = sectionWidth + (sectionWidth - innerRectWidth) / 2;
+  let innerRectY = (height - innerRectHeight) / 2;
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
   // Draw all shapes
@@ -81,28 +89,9 @@ function draw() {
   drawSeesaw();
 }
 
-// Calculate dimensions for the middle section and the inner rectangle, keeping 13:11 proportions horizontally
-function updateSectionDimensions() {
-  // Calculate middle section dimensions based on the 13:11 aspect ratio
-  middleSectionWidth = windowWidth * 0.7; // 70% of window width
-  middleSectionHeight = middleSectionWidth * (11 / 13);
-
-  // Adjust height if it exceeds available window height
-  if (middleSectionHeight > windowHeight * 0.7) {
-    middleSectionHeight = windowHeight * 0.7; // 70% of window height
-    middleSectionWidth = middleSectionHeight * (13 / 11);
-  }
-
-  sideSectionWidth = middleSectionWidth / 2;
-
-  // Inner rectangle dimensions to maintain the 13:11 ratio
-  innerRectWidth = middleSectionWidth * 0.9;
-  innerRectHeight = innerRectWidth * (11 / 13);
-}
-
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  updateSectionDimensions(); // Recalculate dimensions when the window is resized
+  updateSectionDimensions();
 }
 
 function mousePressed() {
@@ -124,7 +113,7 @@ function mouseReleased() {
 }
 
 function drawSeesaw() {
-  let scaleX = sideSectionWidth + middleSectionWidth + (sideSectionWidth - 100) / 2;
+  let scaleX = 2 * sectionWidth + (sectionWidth - 100) / 2;
   let scaleY = (height - 100) / 2;
   let scaleWidth = 100;
   let baseHeight = 5;
