@@ -1,5 +1,3 @@
-
-
 let shapes = [];
 let leftWeight = 0;
 let rightWeight = 0;
@@ -62,7 +60,7 @@ function setup() {
 }
 
 function draw() {
- background(240);
+  background(240);
 
   // Draw the 11:13 rectangle in the middle section
   drawWeightDetectionRectangle();
@@ -76,18 +74,16 @@ function draw() {
   // Draw the seesaw scale in the rightmost section
   drawSeesaw();
 }
+
 function windowResized() {
-  // Resize the canvas to fit the new window dimensions
   resizeCanvas(windowWidth, windowHeight);
 }
-  // }
+
 function mousePressed() {
   for (let i = shapes.length - 1; i >= 0; i--) {
     if (shapes[i].isMouseOver()) {
       draggingShape = shapes[i];
-      // Log the weight of the clicked shape
       console.log(`Clicked shape at (${shapes[i].x.toFixed(1)}, ${shapes[i].y.toFixed(1)}) - Weight: ${shapes[i].weight.toFixed(2)}`);
-      // Bring the selected shape to the front by moving it to the end of the array
       shapes.push(shapes.splice(i, 1)[0]);
       break;
     }
@@ -113,7 +109,6 @@ function drawWeightDetectionRectangle() {
   drawDottedLineInRectangle(rectX, rectY, rectWidth, rectHeight);
 }
 
-// Draw a dashed line inside the rectangle
 function drawDottedLineInRectangle(rectX, rectY, rectWidth, rectHeight) {
   stroke(200);
   strokeWeight(2);
@@ -122,7 +117,6 @@ function drawDottedLineInRectangle(rectX, rectY, rectWidth, rectHeight) {
   }
 }
 
-// Calculate weight distribution: left vs. right inside the 11:13 rectangle
 function calculateWeights() {
   leftWeight = 0;
   rightWeight = 0;
@@ -132,16 +126,13 @@ function calculateWeights() {
 
   for (let shape of shapes) {
     if (shape.onCanvas()) {
-      // Calculate the overlap of the shape in each section
       let overlapSections = calculateSectionOverlap(shape, rectX, sectionWidth);
 
-      // For each section the shape overlaps, apply a weighted contribution based on overlap percentage
       for (let section of overlapSections) {
         let weightedContribution = shape.weight * section.percentage;
         let positionMultiplier = (section.index === 1 || section.index === 6) ? 3 : (section.index === 2 || section.index === 5) ? 2 : 1;
         let adjustedWeight = weightedContribution * positionMultiplier;
 
-        // Assign weight to left or right based on section
         if (section.index <= 3) {
           leftWeight += adjustedWeight;
         } else {
@@ -152,17 +143,16 @@ function calculateWeights() {
   }
 }
 
-// Helper function to calculate section overlap percentages for each shape
 function calculateSectionOverlap(shape, rectX, sectionWidth) {
   let overlapSections = [];
 
   shape.img.loadPixels();
   let totalOpaquePixels = 0;
-  let sectionOpaqueCounts = Array(6).fill(0); // Track opaque pixel counts per section
+  let sectionOpaqueCounts = Array(6).fill(0);
 
   for (let i = 0; i < shape.img.pixels.length; i += 4) {
     let alpha = shape.img.pixels[i + 3];
-    if (alpha > 128) {  // Consider opaque pixel
+    if (alpha > 128) {
       let pixelX = shape.x + (i / 4 % shape.img.width);
       let distanceFromRectX = pixelX - rectX;
       let section = Math.floor(distanceFromRectX / sectionWidth);
@@ -174,11 +164,10 @@ function calculateSectionOverlap(shape, rectX, sectionWidth) {
     }
   }
 
-  // Calculate overlap percentages for each section
   for (let i = 0; i < 6; i++) {
     if (sectionOpaqueCounts[i] > 0) {
       overlapSections.push({
-        index: i + 1, // Section index (1-6)
+        index: i + 1,
         percentage: sectionOpaqueCounts[i] / totalOpaquePixels
       });
     }
@@ -187,54 +176,42 @@ function calculateSectionOverlap(shape, rectX, sectionWidth) {
   return overlapSections;
 }
 
-
-
-
-// Draw the seesaw scale in the rightmost section
 function drawSeesaw() {
-  // Set basic dimensions and positions
   let scaleX = sideSectionWidth + middleSectionWidth + (sideSectionWidth - 100) / 2;
   let scaleY = (height - 100) / 2;
   let scaleWidth = 100;
   let baseHeight = 5;
   let platformHeight = 20;
 
-  // Draw the triangular base of the scale
   fill(120);
   noStroke();
   triangle(
-    scaleX + scaleWidth / 2, scaleY + 60,  // Top of the triangle
-    scaleX + scaleWidth / 2 - 30, scaleY + 100, // Bottom left
-    scaleX + scaleWidth / 2 + 30, scaleY + 100  // Bottom right
+    scaleX + scaleWidth / 2, scaleY + 60,
+    scaleX + scaleWidth / 2 - 30, scaleY + 100,
+    scaleX + scaleWidth / 2 + 30, scaleY + 100
   );
 
-  // Draw the pivot point (circle) at the top of the triangle
   fill(80);
   ellipse(scaleX + scaleWidth / 2, scaleY + 60, 12, 12);
 
-  // Draw the base of the scale (static part)
   fill(100);
   rect(scaleX, scaleY + 60, scaleWidth, baseHeight);
 
-  // Calculate and constrain the tilt of the seesaw based on weight difference
   let maxWeightDifference = 200;
   let seesawTilt = map(rightWeight - leftWeight, -maxWeightDifference, maxWeightDifference, -30, 30);
-  seesawTilt = constrain(seesawTilt / 2, -15, 15); // Halve the sensitivity
+  seesawTilt = constrain(seesawTilt / 2, -15, 15);
 
-  // Draw the seesaw platform (tilting part)
   push();
-  translate(scaleX + scaleWidth / 2, scaleY + 60); // Move to pivot point
-  rotate(radians(seesawTilt)); // Rotate based on weight difference
+  translate(scaleX + scaleWidth / 2, scaleY + 60);
+  rotate(radians(seesawTilt));
   fill(150);
   rect(-scaleWidth / 2, -10, scaleWidth, platformHeight);
 
-  // Draw plates directly on top of both ends of the platform
   fill(180);
-  ellipse(-scaleWidth / 2, -platformHeight / 2 - 5, 40, 10); // Left plate (just above left end)
-  ellipse(scaleWidth / 2, -platformHeight / 2 - 5, 40, 10);  // Right plate (just above right end)
+  ellipse(-scaleWidth / 2, -platformHeight / 2 - 5, 40, 10);
+  ellipse(scaleWidth / 2, -platformHeight / 2 - 5, 40, 10);
   pop();
 
-  // Display the left and right weights
   fill(0);
   textSize(16);
   textAlign(CENTER);
@@ -242,12 +219,6 @@ function drawSeesaw() {
   text('Right Weight: ' + rightWeight, scaleX + scaleWidth / 2, scaleY + 140);
 }
 
-
-
-
-
-
-// DraggableShape class with area, density, and darkness calculations
 class DraggableShape {
   constructor(x, y, img) {
     this.x = x;
@@ -258,7 +229,6 @@ class DraggableShape {
     this.weight = 0;
   }
 
-  // Analyze the shape to determine area, density, and darkness
   analyzeShape() {
     let opaquePixels = 0;
     let totalPixels = this.img.width * this.img.height;
