@@ -23,7 +23,7 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  updateSectionDimensions();
+  updateSectionDimensions(); // Calculate dimensions based on window size
 
   let positions = [];
   for (let i = 1; i <= 20; i++) {
@@ -58,7 +58,7 @@ function setup() {
 function draw() {
   background(240);
 
-  // Draw the middle section with calculated dimensions
+  // Draw the middle section with updated dimensions
   fill(200, 200, 255, 150);
   stroke(0);
   let middleSectionX = (width - middleSectionWidth) / 2;
@@ -81,13 +81,14 @@ function draw() {
   drawSeesaw();
 }
 
+// Calculate dimensions for the middle section and the inner rectangle
 function updateSectionDimensions() {
-  // Middle section dimensions based on 11:13 aspect ratio
+  // Calculate middle section dimensions based on the 11:13 aspect ratio
   if (windowWidth / windowHeight > 11 / 13) {
-    middleSectionHeight = windowHeight * 0.8;
+    middleSectionHeight = windowHeight * 0.7;  // 70% of window height
     middleSectionWidth = middleSectionHeight * (11 / 13);
   } else {
-    middleSectionWidth = windowWidth * 0.8;
+    middleSectionWidth = windowWidth * 0.7;    // 70% of window width
     middleSectionHeight = middleSectionWidth * (13 / 11);
   }
 
@@ -100,7 +101,7 @@ function updateSectionDimensions() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  updateSectionDimensions();
+  updateSectionDimensions(); // Recalculate dimensions when the window is resized
 }
 
 function mousePressed() {
@@ -121,7 +122,6 @@ function mouseReleased() {
   }
 }
 
-// Draw the seesaw scale in the rightmost section
 function drawSeesaw() {
   let scaleX = sideSectionWidth + middleSectionWidth + (sideSectionWidth - 100) / 2;
   let scaleY = (height - 100) / 2;
@@ -204,24 +204,3 @@ class DraggableShape {
     this.weight = this.area * densityMultiplier * darknessFactor;
   }
 
-  show() {
-    image(this.img, this.x, this.y);
-  }
-
-  update() {
-    if (draggingShape === this) {
-      this.x = mouseX - this.img.width / 2;
-      this.y = mouseY - this.img.height / 2;
-    }
-  }
-
-  isMouseOver() {
-    return mouseX > this.x && mouseX < this.x + this.img.width &&
-           mouseY > this.y && mouseY < this.y + this.img.height;
-  }
-
-  onCanvas() {
-    return this.x + this.img.width > 0 && this.x < width &&
-           this.y + this.img.height > 0 && this.y < height;
-  }
-}
