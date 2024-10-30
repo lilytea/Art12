@@ -24,7 +24,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(sideSectionWidth + middleSectionWidth + sideSectionWidth, 400);
+  createCanvas(windowWidth, windowHeight);
 
   let positions = [];  // Track positions to avoid overlap
 
@@ -62,7 +62,7 @@ function setup() {
 }
 
 function draw() {
-  background(240);
+ background(240);
 
   // Draw the 11:13 rectangle in the middle section
   drawWeightDetectionRectangle();
@@ -76,7 +76,11 @@ function draw() {
   // Draw the seesaw scale in the rightmost section
   drawSeesaw();
 }
+function windowResized() {
+  // Resize the canvas to fit the new window dimensions
+  resizeCanvas(windowWidth, windowHeight);
 
+  // }
 function mousePressed() {
   for (let i = shapes.length - 1; i >= 0; i--) {
     if (shapes[i].isMouseOver()) {
