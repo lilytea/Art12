@@ -65,7 +65,7 @@ function draw() {
   let middleSectionY = (height - middleSectionHeight) / 2;
   rect(middleSectionX, middleSectionY, middleSectionWidth, middleSectionHeight);
 
-  // Draw the inner rectangle inside the middle section, maintaining 11:13 ratio horizontally
+  // Draw the inner rectangle inside the middle section, maintaining 13:11 ratio horizontally
   fill(150, 150, 200, 100);
   let innerRectX = middleSectionX + (middleSectionWidth - innerRectWidth) / 2;
   let innerRectY = middleSectionY + (middleSectionHeight - innerRectHeight) / 2;
@@ -81,22 +81,22 @@ function draw() {
   drawSeesaw();
 }
 
-// Calculate dimensions for the middle section and the inner rectangle, keeping 11:13 horizontally
+// Calculate dimensions for the middle section and the inner rectangle, keeping 13:11 proportions
 function updateSectionDimensions() {
-  // Calculate middle section dimensions based on the 11:13 aspect ratio in horizontal orientation
-  if (windowWidth / windowHeight < 11 / 13) {
+  // Calculate middle section dimensions based on the 13:11 aspect ratio in horizontal orientation
+  if (windowWidth / windowHeight > 13 / 11) {
     middleSectionWidth = windowWidth * 0.7;  // 70% of window width
-    middleSectionHeight = middleSectionWidth * (13 / 11);
+    middleSectionHeight = middleSectionWidth * (11 / 13);
   } else {
     middleSectionHeight = windowHeight * 0.7;  // 70% of window height
-    middleSectionWidth = middleSectionHeight * (11 / 13);
+    middleSectionWidth = middleSectionHeight * (13 / 11);
   }
 
   sideSectionWidth = middleSectionWidth / 2;
 
-  // Inner rectangle dimensions to maintain the 11:13 ratio in horizontal orientation
+  // Inner rectangle dimensions to maintain the 13:11 ratio in horizontal orientation
   innerRectWidth = middleSectionWidth * 0.9;
-  innerRectHeight = innerRectWidth * (13 / 11);
+  innerRectHeight = innerRectWidth * (11 / 13);
 }
 
 function windowResized() {
