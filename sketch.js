@@ -65,7 +65,7 @@ function draw() {
   let middleSectionY = (height - middleSectionHeight) / 2;
   rect(middleSectionX, middleSectionY, middleSectionWidth, middleSectionHeight);
 
-  // Draw the inner rectangle inside the middle section
+  // Draw the inner rectangle inside the middle section, maintaining 11:13 ratio horizontally
   fill(150, 150, 200, 100);
   let innerRectX = middleSectionX + (middleSectionWidth - innerRectWidth) / 2;
   let innerRectY = middleSectionY + (middleSectionHeight - innerRectHeight) / 2;
@@ -81,22 +81,22 @@ function draw() {
   drawSeesaw();
 }
 
-// Calculate dimensions for the middle section and the inner rectangle
+// Calculate dimensions for the middle section and the inner rectangle, keeping 11:13 horizontally
 function updateSectionDimensions() {
-  // Calculate middle section dimensions based on the 11:13 aspect ratio
-  if (windowWidth / windowHeight > 11 / 13) {
+  // Calculate middle section dimensions based on the 11:13 aspect ratio in horizontal orientation
+  if (windowWidth / windowHeight < 11 / 13) {
+    middleSectionWidth = windowWidth * 0.7;  // 70% of window width
+    middleSectionHeight = middleSectionWidth * (13 / 11);
+  } else {
     middleSectionHeight = windowHeight * 0.7;  // 70% of window height
     middleSectionWidth = middleSectionHeight * (11 / 13);
-  } else {
-    middleSectionWidth = windowWidth * 0.7;    // 70% of window width
-    middleSectionHeight = middleSectionWidth * (13 / 11);
   }
 
   sideSectionWidth = middleSectionWidth / 2;
 
-  // Inner rectangle dimensions as a proportion of the middle section
+  // Inner rectangle dimensions to maintain the 11:13 ratio in horizontal orientation
   innerRectWidth = middleSectionWidth * 0.9;
-  innerRectHeight = middleSectionHeight * 0.9;
+  innerRectHeight = innerRectWidth * (13 / 11);
 }
 
 function windowResized() {
@@ -204,3 +204,24 @@ class DraggableShape {
     this.weight = this.area * densityMultiplier * darknessFactor;
   }
 
+  show() {
+    image(this.img, this.x, this.y);
+  }
+
+  update() {
+    if (draggingShape === this) {
+      this.x = mouseX - this.img.width / 2;
+      this.y = mouseY - this.img.height / 2;
+    }
+  }
+
+  isMouseOver() {
+    return mouseX > this.x && mouseX < this.x + this.img.width &&
+           mouseY > this.y && mouseY < this.y + this.img.height;
+  }
+
+  onCanvas() {
+    return this.x + this.img.width > 0 && this.x < width &&
+           this.y + this.img.height > 0 && this.y < height;
+  }
+}
