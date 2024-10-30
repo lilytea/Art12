@@ -81,20 +81,21 @@ function draw() {
   drawSeesaw();
 }
 
-// Calculate dimensions for the middle section and the inner rectangle, keeping 13:11 proportions
+// Calculate dimensions for the middle section and the inner rectangle, keeping 13:11 proportions horizontally
 function updateSectionDimensions() {
-  // Calculate middle section dimensions based on the 13:11 aspect ratio in horizontal orientation
-  if (windowWidth / windowHeight > 13 / 11) {
-    middleSectionWidth = windowWidth * 0.7;  // 70% of window width
-    middleSectionHeight = middleSectionWidth * (11 / 13);
-  } else {
-    middleSectionHeight = windowHeight * 0.7;  // 70% of window height
+  // Calculate middle section dimensions based on the 13:11 aspect ratio
+  middleSectionWidth = windowWidth * 0.7; // 70% of window width
+  middleSectionHeight = middleSectionWidth * (11 / 13);
+
+  // Adjust height if it exceeds available window height
+  if (middleSectionHeight > windowHeight * 0.7) {
+    middleSectionHeight = windowHeight * 0.7; // 70% of window height
     middleSectionWidth = middleSectionHeight * (13 / 11);
   }
 
   sideSectionWidth = middleSectionWidth / 2;
 
-  // Inner rectangle dimensions to maintain the 13:11 ratio in horizontal orientation
+  // Inner rectangle dimensions to maintain the 13:11 ratio
   innerRectWidth = middleSectionWidth * 0.9;
   innerRectHeight = innerRectWidth * (11 / 13);
 }
