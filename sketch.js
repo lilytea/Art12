@@ -23,6 +23,9 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   updateSectionDimensions(); // Calculate dimensions based on window size
 
+  console.log("Canvas size:", windowWidth, windowHeight);
+  console.log("Section width:", sectionWidth);
+
   let positions = [];
   for (let i = 1; i <= 20; i++) {
     let x, y;
@@ -56,19 +59,19 @@ function setup() {
 function draw() {
   background(240);
 
-  // Draw left, middle, and right sections
+  // Draw left, middle, and right sections with placeholder colors
   sectionWidth = width / 3;
 
   // Left section
-  fill(220);
+  fill(255, 200, 200);  // Red for left section
   rect(0, 0, sectionWidth, height);
 
   // Middle section
-  fill(200, 200, 255, 150);
+  fill(200, 255, 200);  // Green for middle section
   rect(sectionWidth, 0, sectionWidth, height);
 
   // Right section
-  fill(220);
+  fill(200, 200, 255);  // Blue for right section
   rect(2 * sectionWidth, 0, sectionWidth, height);
 
   // Draw the inner rectangle within the middle section with 11:13 ratio
@@ -89,9 +92,16 @@ function draw() {
   drawSeesaw();
 }
 
+function updateSectionDimensions() {
+  sectionWidth = width / 3;
+  innerRectWidth = sectionWidth * 0.8;
+  innerRectHeight = innerRectWidth * (11 / 13);
+  console.log("Updated section dimensions:", sectionWidth, innerRectWidth, innerRectHeight);
+}
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  updateSectionDimensions();
+  updateSectionDimensions(); // Recalculate dimensions when the window is resized
 }
 
 function mousePressed() {
@@ -115,7 +125,7 @@ function mouseReleased() {
 function drawSeesaw() {
   // Position the scale in the center of the right section
   let scaleX = 2 * sectionWidth + (sectionWidth - 100) / 2;
-  let scaleY = (height - 100) / 2; // Center vertically in the right section
+  let scaleY = (height - 100) / 2;
   let scaleWidth = 100;
   let baseHeight = 5;
   let platformHeight = 20;
