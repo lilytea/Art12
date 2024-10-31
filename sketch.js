@@ -88,7 +88,7 @@ function calculateWeights() {
 }
 
 function draw() {
-  background(240);
+  background(255);
   updateSectionDimensions();
 
  fill(255); // White color
