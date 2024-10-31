@@ -91,16 +91,15 @@ function draw() {
   background(240);
   updateSectionDimensions();
 
-  fill(245, 245, 220);
-  rect(0, 0, leftSectionWidth, height);
+ fill(255); // White color
+  rect(0, 0, leftSectionWidth, height); // Left section
+  rect(leftSectionWidth, 0, middleSectionWidth, height); // Middle section
+  rect(leftSectionWidth + middleSectionWidth, 0, rightSectionWidth, height); // Right section
 
-  fill(245, 245, 220);
-  rect(leftSectionWidth, 0, middleSectionWidth, height);
-
-  fill(245, 245, 220);
-  rect(leftSectionWidth + middleSectionWidth, 0, rightSectionWidth, height);
-
-  fill(245, 245, 220);
+  // Draw the inner rectangle within the middle section with beige color and 11:13 ratio
+  fill(245, 245, 220); // Beige color for the inner rectangle
+  
+  
   let innerRectX = leftSectionWidth + (middleSectionWidth - innerRectWidth) / 2;
   let innerRectY = (height - innerRectHeight) / 2;
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
