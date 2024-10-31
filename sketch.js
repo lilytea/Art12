@@ -55,16 +55,40 @@ function setup() {
 }
 
 function calculateWeights() {
-  leftWeight = shapes
-    .filter(shape => shape.x < sectionWidth)
-    .reduce((acc, shape) => acc + shape.weight, 0);
+  leftWeight = 0;
+  rightWeight = 0;
 
-  rightWeight = shapes
-    .filter(shape => shape.x > 2 * sectionWidth)
-    .reduce((acc, shape) => acc + shape.weight, 0);
+  for (let shape of shapes) {
+    // Calculate the middle section bounds
+    let leftBound = sectionWidth;
+    let rightBound = 2 * sectionWidth;
+    
+    // Determine if shape is in the left, middle, or right section
+    let shapeCenterX = shape.x + shape.img.width / 2;
 
+    // If the shape is primarily in the left section
+    if (shapeCenterX < leftBound) {
+      leftWeight += shape.weight;
+    }
+    // If the shape is primarily in the right section
+    else if (shapeCenterX > rightBound) {
+      rightWeight += shape.weight;
+    }
+    // If the shape is in the middle section, divide its weight
+    else {
+      // Calculate overlap percentage with each side
+      let overlapLeft = Math.max(0, leftBound - shape.x);
+      let overlapRight = Math.max(0, shape.x + shape.img.width - rightBound);
+      let overlapMiddle = shape.img.width - overlapLeft - overlapRight;
+
+      // Weight based on overlap
+      leftWeight += (shape.weight * (overlapLeft / shape.img.width));
+      rightWeight += (shape.weight * (overlapRight / shape.img.width));
+    }
+  }
   console.log("Left Weight:", leftWeight, "Right Weight:", rightWeight);
 }
+
 
 function draw() {
   background(240);
