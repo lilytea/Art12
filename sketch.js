@@ -55,25 +55,29 @@ function calculateWeights() {
   for (let shape of shapes) {
     let shapeCenterX = shape.x + shape.width / 2;
 
+    // Ensure the shape is within the inner rectangle bounds
     if (shapeCenterX > innerRectX && shapeCenterX < innerRectX + innerRectWidth) {
       let relativeX = shapeCenterX - innerRectX;
       let sectionIndex = Math.floor(relativeX / sectionWidthInner) + 1;
 
+      // Assign the multiplier based on section
       let multiplier;
       if (sectionIndex === 1 || sectionIndex === 6) {
-        multiplier = 3;
+        multiplier = 3; // Heaviest
       } else if (sectionIndex === 2 || sectionIndex === 5) {
         multiplier = 2;
       } else {
-        multiplier = 1;
+        multiplier = 1; // Lightest
       }
 
-      let weightedContribution = shape.weight * multiplier;
+      // Calculate the actual weight considering the size (area) and multiplier
+      let adjustedWeight = shape.weight * multiplier;
 
-      if (relativeX < innerRectWidth / 2) {
-        leftWeight += weightedContribution;
+      // Assign weight to left or right based on its position
+      if (shapeCenterX < innerRectX + innerRectWidth / 2) {
+        leftWeight += adjustedWeight;
       } else {
-        rightWeight += weightedContribution;
+        rightWeight += adjustedWeight;
       }
     }
   }
@@ -210,12 +214,19 @@ class DraggableShape {
     this.originalHeight = img.height;
     this.width = img.width;
     this.height = img.height;
-    this.weight = this.originalWidth * this.originalHeight * 0.1;
+    this.calculateWeight(); // Calculate weight based on size
   }
 
+  // Calculate weight based on current size
+  calculateWeight() {
+    this.weight = (this.width * this.height) * 0.1;
+  }
+
+  // Update size and recalculate weight
   updateSize(scale) {
     this.width = this.originalWidth * scale;
     this.height = this.originalHeight * scale;
+    this.calculateWeight(); // Recalculate weight when resized
   }
 
   show() {
