@@ -106,7 +106,7 @@ function draw() {
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
   // Adjust scale factor for image resizing
-  let scale = innerRectHeight / originalRectHeight * 0.3; // Increase from 0.09 to 0.3
+  let scale = innerRectHeight / originalRectHeight * 0.09; // Increase from 0.09 to 0.3
 
   for (let shape of shapes) {
     shape.updateSize(scale);
