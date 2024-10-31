@@ -3,7 +3,6 @@ let leftWeight = 0;
 let rightWeight = 0;
 let draggingShape = null;
 
-// Dimensions for sections and inner rectangle
 let sectionWidth;
 let innerRectWidth;
 let innerRectHeight;
@@ -11,7 +10,6 @@ let innerRectHeight;
 let images = [];
 let scaleFactor = 0.09;
 
-// Define the DraggableShape class
 class DraggableShape {
   constructor(x, y, img) {
     this.x = x;
@@ -22,7 +20,6 @@ class DraggableShape {
     this.weight = 0;
   }
 
-  // Analyze the shape to determine area, density, and darkness
   analyzeShape() {
     let opaquePixels = 0;
     let totalPixels = this.img.width * this.img.height;
@@ -42,7 +39,6 @@ class DraggableShape {
     }
 
     this.area = opaquePixels;
-
     let averageBrightness = totalBrightness / totalPixels;
     let darknessFactor = 1 + (255 - averageBrightness) / 255;
 
@@ -50,7 +46,6 @@ class DraggableShape {
     let densityMultiplier = this.density === 'solid' ? 1.5 : 1.0;
 
     this.weight = this.area * densityMultiplier * darknessFactor;
-    console.log(`Shape weight: ${this.weight}`); // Log to check weight calculation
   }
 
   show() {
@@ -117,7 +112,6 @@ function setup() {
   }
 }
 
-// Calculate weights based on shape positions
 function calculateWeights() {
   leftWeight = 0;
   rightWeight = 0;
@@ -127,19 +121,32 @@ function calculateWeights() {
     let leftBound = sectionWidth;
     let rightBound = 2 * sectionWidth;
 
-    if (shapeCenterX < leftBound) {
-      leftWeight += shape.weight;
-    } else if (shapeCenterX > rightBound) {
-      rightWeight += shape.weight;
-    } else {
-      let overlapLeft = Math.max(0, leftBound - shape.x);
-      let overlapRight = Math.max(0, shape.x + shape.img.width - rightBound);
-      let overlapMiddle = shape.img.width - overlapLeft - overlapRight;
+    if (shapeCenterX > leftBound && shapeCenterX < rightBound) {
+      let sectionWidthInner = innerRectWidth / 6;
+      let relativeX = shapeCenterX - leftBound;
+      let sectionIndex = Math.floor(relativeX / sectionWidthInner) + 1;
 
-      leftWeight += shape.weight * (overlapLeft / shape.img.width);
-      rightWeight += shape.weight * (overlapRight / shape.img.width);
+      // Weight multipliers for sections (1 and 6 are heaviest, 3 and 4 are lightest)
+      let multiplier;
+      if (sectionIndex === 1 || sectionIndex === 6) {
+        multiplier = 3;
+      } else if (sectionIndex === 2 || sectionIndex === 5) {
+        multiplier = 2;
+      } else {
+        multiplier = 1;
+      }
+
+      let weightedContribution = shape.weight * multiplier;
+
+      // Divide the weight contribution based on whether it's more on the left or right
+      if (relativeX < innerRectWidth / 2) {
+        leftWeight += weightedContribution;
+      } else {
+        rightWeight += weightedContribution;
+      }
     }
   }
+
   console.log("Left Weight:", leftWeight, "Right Weight:", rightWeight);
 }
 
