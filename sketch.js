@@ -21,7 +21,7 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  updateSectionDimensions(); // Calculate dimensions based on window size
+  updateSectionDimensions();
 
   let positions = [];
   for (let i = 1; i <= 20; i++) {
@@ -31,7 +31,7 @@ function setup() {
 
     do {
       overlapping = false;
-      x = random(0, sectionWidth - images[i].width); // Only within the left section
+      x = random(0, sectionWidth - images[i].width);
       y = random(0, height - images[i].height);
 
       for (let pos of positions) {
@@ -50,35 +50,33 @@ function setup() {
     let shape = new DraggableShape(x, y, images[i]);
     shape.analyzeShape();
     shapes.push(shape);
+    console.log(`Initialized shape with weight: ${shape.weight}`);
   }
 }
 
-// Define calculateWeights function to avoid errors
 function calculateWeights() {
-  leftWeight = shapes.filter(shape => shape.x < sectionWidth).length * 10;
-  rightWeight = shapes.filter(shape => shape.x > 2 * sectionWidth).length * 10;
+  leftWeight = shapes
+    .filter(shape => shape.x < sectionWidth)
+    .reduce((acc, shape) => acc + shape.weight, 0);
+
+  rightWeight = shapes
+    .filter(shape => shape.x > 2 * sectionWidth)
+    .reduce((acc, shape) => acc + shape.weight, 0);
+
   console.log("Left Weight:", leftWeight, "Right Weight:", rightWeight);
 }
 
 function draw() {
   background(240);
-
-  // Draw left, middle, and right sections
   sectionWidth = width / 3;
 
-  // Left section
-  fill(255, 200, 200);  // Red for left section
+  fill(255, 200, 200);
   rect(0, 0, sectionWidth, height);
-
-  // Middle section
-  fill(200, 255, 200);  // Green for middle section
+  fill(200, 255, 200);
   rect(sectionWidth, 0, sectionWidth, height);
-
-  // Right section
-  fill(200, 200, 255);  // Blue for right section
+  fill(200, 200, 255);
   rect(2 * sectionWidth, 0, sectionWidth, height);
 
-  // Draw the inner rectangle within the middle section with 11:13 ratio
   fill(150, 150, 200, 100);
   innerRectWidth = sectionWidth * 0.8;
   innerRectHeight = innerRectWidth * (11 / 13);
@@ -86,17 +84,14 @@ function draw() {
   let innerRectY = (height - innerRectHeight) / 2;
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
-  // Draw all shapes
   for (let shape of shapes) {
     shape.show();
     shape.update();
   }
 
-  // Draw the seesaw scale in the rightmost section
   drawSeesaw();
 }
 
-// Define updateSectionDimensions to set up section and rectangle dimensions based on canvas size
 function updateSectionDimensions() {
   sectionWidth = width / 3;
   innerRectWidth = sectionWidth * 0.8;
@@ -105,7 +100,7 @@ function updateSectionDimensions() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  updateSectionDimensions(); // Recalculate dimensions when the window is resized
+  updateSectionDimensions();
 }
 
 function mousePressed() {
@@ -123,12 +118,11 @@ function mouseReleased() {
   if (draggingShape) {
     console.log(`Stopped dragging shape at (${draggingShape.x.toFixed(1)}, ${draggingShape.y.toFixed(1)})`);
     calculateWeights();
-    draggingShape = null; // Stop dragging
+    draggingShape = null;
   }
 }
 
 function drawSeesaw() {
-  // Position the scale in the center of the right section
   let scaleX = 2 * sectionWidth + (sectionWidth - 100) / 2;
   let scaleY = (height - 100) / 2;
   let scaleWidth = 100;
@@ -152,6 +146,7 @@ function drawSeesaw() {
   let maxWeightDifference = 200;
   let seesawTilt = map(rightWeight - leftWeight, -maxWeightDifference, maxWeightDifference, -30, 30);
   seesawTilt = constrain(seesawTilt / 2, -15, 15);
+  console.log("Seesaw Tilt:", seesawTilt);
 
   push();
   translate(scaleX + scaleWidth / 2, scaleY + 60);
@@ -169,65 +164,4 @@ function drawSeesaw() {
   textAlign(CENTER);
   text('Left Weight: ' + leftWeight, scaleX + scaleWidth / 2, scaleY + 120);
   text('Right Weight: ' + rightWeight, scaleX + scaleWidth / 2, scaleY + 140);
-}
-
-class DraggableShape {
-  constructor(x, y, img) {
-    this.x = x;
-    this.y = y;
-    this.img = img;
-    this.area = 0;
-    this.density = 'solid';
-    this.weight = 0;
-  }
-
-  analyzeShape() {
-    let opaquePixels = 0;
-    let totalPixels = this.img.width * this.img.height;
-    let totalBrightness = 0;
-
-    this.img.loadPixels();
-    for (let i = 0; i < this.img.pixels.length; i += 4) {
-      let r = this.img.pixels[i];
-      let g = this.img.pixels[i + 1];
-      let b = this.img.pixels[i + 2];
-      let alpha = this.img.pixels[i + 3];
-
-      let brightness = (r + g + b) / 3;
-      totalBrightness += brightness;
-
-      if (alpha > 128) opaquePixels++;
-    }
-
-    this.area = opaquePixels;
-
-    let averageBrightness = totalBrightness / totalPixels;
-    let darknessFactor = 1 + (255 - averageBrightness) / 255;
-
-    this.density = opaquePixels / totalPixels > 0.7 ? 'solid' : 'hollow';
-    let densityMultiplier = this.density === 'solid' ? 1.5 : 1.0;
-
-    this.weight = this.area * densityMultiplier * darknessFactor;
-  }
-
-  show() {
-    image(this.img, this.x, this.y);
-  }
-
-  update() {
-    if (draggingShape === this) {
-      this.x = mouseX - this.img.width / 2;
-      this.y = mouseY - this.img.height / 2;
-    }
-  }
-
-  isMouseOver() {
-    return mouseX > this.x && mouseX < this.x + this.img.width &&
-           mouseY > this.y && mouseY < this.y + this.img.height;
-  }
-
-  onCanvas() {
-    return this.x + this.img.width > 0 && this.x < width &&
-           this.y + this.img.height > 0 && this.y < height;
-  }
 }
