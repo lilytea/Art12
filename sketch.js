@@ -91,12 +91,16 @@ function draw() {
   background(255);
   updateSectionDimensions();
 
- fill(255); // White color
-  rect(0, 0, leftSectionWidth, height); // Left section
-  rect(leftSectionWidth, 0, middleSectionWidth, height); // Middle section
-  rect(leftSectionWidth + middleSectionWidth, 0, rightSectionWidth, height); // Right section
+ fill(245, 245, 250); // Very light blue for the left section
+  rect(0, 0, leftSectionWidth, height); // Draw left section
 
+  fill(250, 245, 245); // Very light pink for the middle section
+  rect(leftSectionWidth, 0, middleSectionWidth, height); // Draw middle section
+
+  fill(245, 250, 245); // Very light green for the right section
+  rect(leftSectionWidth + middleSectionWidth, 0, rightSectionWidth, height);
   // Draw the inner rectangle within the middle section with beige color and 11:13 ratio
+
   fill(245, 245, 220); // Beige color for the inner rectangle
   
   
