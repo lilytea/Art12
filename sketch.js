@@ -88,7 +88,7 @@ function calculateWeights() {
 }
 
 function draw() {
-//  background(255);
+  background(255);
   updateSectionDimensions();
 
  fill(245, 245, 250); // Very light blue for the left section
