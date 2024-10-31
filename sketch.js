@@ -23,9 +23,6 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   updateSectionDimensions(); // Calculate dimensions based on window size
 
-  console.log("Canvas size:", windowWidth, windowHeight);
-  console.log("Section width:", sectionWidth);
-
   let positions = [];
   for (let i = 1; i <= 20; i++) {
     let x, y;
@@ -59,7 +56,7 @@ function setup() {
 function draw() {
   background(240);
 
-  // Draw left, middle, and right sections with placeholder colors
+  // Draw left, middle, and right sections
   sectionWidth = width / 3;
 
   // Left section
@@ -88,15 +85,15 @@ function draw() {
     shape.update();
   }
 
-  // Draw the seesaw scale in the center of the rightmost section
+  // Draw the seesaw scale in the rightmost section
   drawSeesaw();
 }
 
+// Define updateSectionDimensions to set up section and rectangle dimensions based on canvas size
 function updateSectionDimensions() {
   sectionWidth = width / 3;
   innerRectWidth = sectionWidth * 0.8;
   innerRectHeight = innerRectWidth * (11 / 13);
-  console.log("Updated section dimensions:", sectionWidth, innerRectWidth, innerRectHeight);
 }
 
 function windowResized() {
