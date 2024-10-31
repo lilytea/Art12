@@ -3,6 +3,7 @@ let leftWeight = 0;
 let rightWeight = 0;
 let draggingShape = null;
 
+// Dimensions for sections and inner rectangle
 let leftSectionWidth;
 let middleSectionWidth;
 let rightSectionWidth;
@@ -104,11 +105,11 @@ function draw() {
   let innerRectY = (height - innerRectHeight) / 2;
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
-  // Calculate dynamic scale based on the current inner rectangle height
-  let scale = innerRectHeight / originalRectHeight ;
+  // Adjust scale factor for image resizing
+  let scale = innerRectHeight / originalRectHeight * 0.3; // Increase from 0.09 to 0.3
 
   for (let shape of shapes) {
-    shape.updateSize(scale);  // Dynamically resize based on rectangle scale
+    shape.updateSize(scale);
     shape.show();
     shape.update();
   }
@@ -191,7 +192,6 @@ function drawSeesaw() {
   text('Right Weight: ' + rightWeight, scaleX + scaleWidth / 2, scaleY + 140);
 }
 
-// DraggableShape class with dynamic resizing
 class DraggableShape {
   constructor(x, y, img) {
     this.x = x;
