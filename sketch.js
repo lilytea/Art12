@@ -105,7 +105,7 @@ function draw() {
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
   // Calculate dynamic scale based on the current inner rectangle height
-  let scale = innerRectHeight / originalRectHeight;
+  let scale = innerRectHeight / originalRectHeight*0.09;
 
   for (let shape of shapes) {
     shape.updateSize(scale);  // Dynamically resize based on rectangle scale
