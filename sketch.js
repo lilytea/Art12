@@ -120,6 +120,13 @@ function mouseReleased() {
   }
 }
 
+// Dummy calculateWeights function to avoid errors
+function calculateWeights() {
+  leftWeight = shapes.filter(shape => shape.x < sectionWidth).length * 10;
+  rightWeight = shapes.filter(shape => shape.x > 2 * sectionWidth).length * 10;
+  console.log("Left Weight:", leftWeight, "Right Weight:", rightWeight);
+}
+
 function drawSeesaw() {
   // Position the scale in the center of the right section
   let scaleX = 2 * sectionWidth + (sectionWidth - 100) / 2;
