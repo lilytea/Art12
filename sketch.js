@@ -12,71 +12,53 @@ let innerRectHeight;
 let images = [];
 let scaleFactor = 0.09;
 
+// Original rectangle dimensions for scaling reference
+let originalRectHeight = 220;
+let originalRectWidth = originalRectHeight * (13 / 11);
+let originalScaleFactor = scaleFactor;
+
 class DraggableShape {
-  constructor(x, y, img) {
+  constructor(x, y, img, width, height) {
     this.x = x;
     this.y = y;
     this.img = img;
-    this.area = 0;
-    this.density = 'solid';
+    this.originalWidth = width;
+    this.originalHeight = height;
+    this.width = width;
+    this.height = height;
     this.weight = 0;
   }
 
-  analyzeShape() {
-    let opaquePixels = 0;
-    let totalPixels = this.img.width * this.img.height;
-    let totalBrightness = 0;
-
-    this.img.loadPixels();
-    for (let i = 0; i < this.img.pixels.length; i += 4) {
-      let r = this.img.pixels[i];
-      let g = this.img.pixels[i + 1];
-      let b = this.img.pixels[i + 2];
-      let alpha = this.img.pixels[i + 3];
-
-      let brightness = (r + g + b) / 3;
-      totalBrightness += brightness;
-
-      if (alpha > 128) opaquePixels++;
-    }
-
-    this.area = opaquePixels;
-    let averageBrightness = totalBrightness / totalPixels;
-    let darknessFactor = 1 + (255 - averageBrightness) / 255;
-
-    this.density = opaquePixels / totalPixels > 0.7 ? 'solid' : 'hollow';
-    let densityMultiplier = this.density === 'solid' ? 1.5 : 1.0;
-
-    this.weight = this.area * densityMultiplier * darknessFactor;
+  updateSize(scale) {
+    this.width = this.originalWidth * scale;
+    this.height = this.originalHeight * scale;
   }
 
   show() {
-    image(this.img, this.x, this.y);
+    image(this.img, this.x, this.y, this.width, this.height);
   }
 
   update() {
     if (draggingShape === this) {
-      this.x = mouseX - this.img.width / 2;
-      this.y = mouseY - this.img.height / 2;
+      this.x = mouseX - this.width / 2;
+      this.y = mouseY - this.height / 2;
     }
   }
 
   isMouseOver() {
-    return mouseX > this.x && mouseX < this.x + this.img.width &&
-           mouseY > this.y && mouseY < this.y + this.img.height;
+    return mouseX > this.x && mouseX < this.x + this.width &&
+           mouseY > this.y && mouseY < this.y + this.height;
   }
 
   onCanvas() {
-    return this.x + this.img.width > 0 && this.x < width &&
-           this.y + this.img.height > 0 && this.y < height;
+    return this.x + this.width > 0 && this.x < width &&
+           this.y + this.height > 0 && this.y < height;
   }
 }
 
 function preload() {
   for (let i = 1; i <= 20; i++) {
-    images[i] = loadImage('https://raw.githubusercontent.com/lilytea/Art12/main/img' + i + '.png', img => {
-      img.resize(img.width * scaleFactor, img.height * scaleFactor);
-    });
+    images[i] = loadImage('https://raw.githubusercontent.com/lilytea/Art12/main/img' + i + '.png');
   }
 }
 
@@ -92,13 +74,11 @@ function setup() {
 
     do {
       overlapping = false;
-      x = random(0, leftSectionWidth - images[i].width);
-      y = random(0, height - images[i].height);
+      x = random(0, leftSectionWidth - originalRectWidth * originalScaleFactor);
+      y = random(0, height - originalRectHeight * originalScaleFactor);
 
       for (let pos of positions) {
-        let w = images[i].width;
-        let h = images[i].height;
-        if (dist(x + w / 2, y + h / 2, pos.x + pos.width / 2, pos.y + pos.height / 2) < w * 0.8) {
+        if (dist(x, y, pos.x, pos.y) < originalRectWidth * originalScaleFactor * 0.8) {
           overlapping = true;
           break;
         }
@@ -106,10 +86,9 @@ function setup() {
       attempts++;
     } while (overlapping && attempts < 100);
 
-    positions.push({ x: x, y: y, width: images[i].width, height: images[i].height });
+    positions.push({ x: x, y: y });
 
-    let shape = new DraggableShape(x, y, images[i]);
-    shape.analyzeShape();
+    let shape = new DraggableShape(x, y, images[i], images[i].width * originalScaleFactor, images[i].height * originalScaleFactor);
     shapes.push(shape);
   }
 }
@@ -119,16 +98,12 @@ function calculateWeights() {
   rightWeight = 0;
 
   let innerRectX = leftSectionWidth + (middleSectionWidth - innerRectWidth) / 2;
-  let innerRectY = (height - innerRectHeight) / 2;
   let sectionWidthInner = innerRectWidth / 6;
 
   for (let shape of shapes) {
-    let shapeCenterX = shape.x + shape.img.width / 2;
-    let shapeCenterY = shape.y + shape.img.height / 2;
+    let shapeCenterX = shape.x + shape.width / 2;
 
-    if (shapeCenterX > innerRectX && shapeCenterX < innerRectX + innerRectWidth &&
-        shapeCenterY > innerRectY && shapeCenterY < innerRectY + innerRectHeight) {
-      
+    if (shapeCenterX > innerRectX && shapeCenterX < innerRectX + innerRectWidth) {
       let relativeX = shapeCenterX - innerRectX;
       let sectionIndex = Math.floor(relativeX / sectionWidthInner) + 1;
 
@@ -168,13 +143,13 @@ function draw() {
   rect(leftSectionWidth + middleSectionWidth, 0, rightSectionWidth, height);
 
   fill(150, 150, 200, 100);
-  innerRectWidth = middleSectionWidth * 0.8;
-  innerRectHeight = innerRectWidth * (11 / 13);
   let innerRectX = leftSectionWidth + (middleSectionWidth - innerRectWidth) / 2;
   let innerRectY = (height - innerRectHeight) / 2;
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
+  let scale = innerRectHeight / originalRectHeight;
   for (let shape of shapes) {
+    shape.updateSize(scale);  // Update image size based on rectangle scale
     shape.show();
     shape.update();
   }
