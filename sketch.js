@@ -24,32 +24,26 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   updateSectionDimensions();
 
-  let positions = [];
+  let slotHeight = height / 20; // Divide left section height by 20 for each image slot
+  let xMin = leftSectionWidth / 2; // Minimum x to keep images on the right half of the left section
+  let xMax = leftSectionWidth - originalRectWidth; // Maximum x within the left section
+
   for (let i = 1; i <= 20; i++) {
-    let x, y;
-    let overlapping;
-    let attempts = 0;
+    // Assign each image a specific slot along the right side of the left section
+    let x = random(xMin, xMax); // Place within the right half of the left section
+    let y = i * slotHeight - originalRectHeight / 2; // Calculate y based on slot position
 
-    do {
-      overlapping = false;
-      x = random(0, leftSectionWidth - originalRectWidth);
-      y = random(0, height - originalRectHeight);
-
-      for (let pos of positions) {
-        if (dist(x, y, pos.x, pos.y) < originalRectWidth * 0.8) {
-          overlapping = true;
-          break;
-        }
-      }
-      attempts++;
-    } while (overlapping && attempts < 100);
-
-    positions.push({ x: x, y: y });
-
+    // Create the shape within bounds
     let shape = new DraggableShape(x, y, images[i]);
     shapes.push(shape);
   }
 }
+
+
+
+
+
+
 
 function calculateWeights() {
   leftWeight = 0;
@@ -110,7 +104,7 @@ function draw() {
 
   // Adjust scale factor for image resizing
  // Adjust scale factor in draw()
-let scale = (innerRectHeight / originalRectHeight * 0.2) / window.devicePixelRatio;
+let scale = (innerRectHeight / originalRectHeight * 0.16) / window.devicePixelRatio;
 
   for (let shape of shapes) {
     shape.updateSize(scale);
@@ -154,47 +148,58 @@ function updateSectionDimensions() {
 }
 
 function drawSeesaw() {
-  let scaleX = leftSectionWidth + middleSectionWidth + (rightSectionWidth - 100) / 2;
-  let scaleY = (height - 100) / 2;
-  let scaleWidth = 100;
-  let baseHeight = 5;
-  let platformHeight = 20;
+  // Scale dimensions by 1.5
+  let scaleX = leftSectionWidth + middleSectionWidth + (rightSectionWidth - 150) / 2; // Adjust for larger width
+  let scaleY = (height - 150) / 2; // Adjust for larger height
+  let scaleWidth = 150; // 1.5 times the original width
+  let baseHeight = 7.5; // 1.5 times the original base height
+  let platformHeight = 30; // 1.5 times the original platform height
 
+  // Draw the triangular base of the seesaw (scaled up)
   fill(120);
   noStroke();
   triangle(
-    scaleX + scaleWidth / 2, scaleY + 60,
-    scaleX + scaleWidth / 2 - 30, scaleY + 100,
-    scaleX + scaleWidth / 2 + 30, scaleY + 100
+    scaleX + scaleWidth / 2, scaleY + 90,            // Top of the triangle
+    scaleX + scaleWidth / 2 - 45, scaleY + 150,      // Bottom left
+    scaleX + scaleWidth / 2 + 45, scaleY + 150       // Bottom right
   );
 
+  // Draw the pivot point (circle) at the top of the triangle
   fill(80);
-  ellipse(scaleX + scaleWidth / 2, scaleY + 60, 12, 12);
+  ellipse(scaleX + scaleWidth / 2, scaleY + 90, 18, 18); // 1.5 times the original pivot point size
 
+  // Draw the base of the seesaw (static part)
   fill(100);
-  rect(scaleX, scaleY + 60, scaleWidth, baseHeight);
+  rect(scaleX, scaleY + 90, scaleWidth, baseHeight); // 1.5 times the original width and base height
 
+  // Calculate and constrain the tilt of the seesaw based on weight difference
   let maxWeightDifference = 200;
   let seesawTilt = map(rightWeight - leftWeight, -maxWeightDifference, maxWeightDifference, -30, 30);
-  seesawTilt = constrain(seesawTilt / 2, -15, 15);
+  seesawTilt = constrain(seesawTilt / 2, -15, 15); // Halve the sensitivity
 
+  // Draw the seesaw platform (tilting part)
   push();
-  translate(scaleX + scaleWidth / 2, scaleY + 60);
+  translate(scaleX + scaleWidth / 2, scaleY + 90); // Move to pivot point
   rotate(radians(seesawTilt));
   fill(150);
-  rect(-scaleWidth / 2, -10, scaleWidth, platformHeight);
+  rect(-scaleWidth / 2, -15, scaleWidth, platformHeight); // 1.5 times the original platform height
 
+  // Draw plates directly on top of both ends of the platform
   fill(180);
-  ellipse(-scaleWidth / 2, -platformHeight / 2 - 5, 40, 10);
-  ellipse(scaleWidth / 2, -platformHeight / 2 - 5, 40, 10);
+  ellipse(-scaleWidth / 2, -platformHeight / 2 - 7.5, 60, 15); // Left plate (scaled up)
+  ellipse(scaleWidth / 2, -platformHeight / 2 - 7.5, 60, 15);  // Right plate (scaled up)
   pop();
 
+  // Display the left and right weights
   fill(0);
   textSize(16);
   textAlign(CENTER);
-  text('Left Weight: ' + leftWeight, scaleX + scaleWidth / 2, scaleY + 120);
-  text('Right Weight: ' + rightWeight, scaleX + scaleWidth / 2, scaleY + 140);
+  text('Left Weight: ' + leftWeight, scaleX + scaleWidth / 2, scaleY + 180);
+  text('Right Weight: ' + rightWeight, scaleX + scaleWidth / 2, scaleY + 200);
 }
+
+
+
 
 class DraggableShape {
   constructor(x, y, img) {
