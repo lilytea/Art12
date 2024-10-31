@@ -3,7 +3,9 @@ let leftWeight = 0;
 let rightWeight = 0;
 let draggingShape = null;
 
-let sectionWidth;
+let leftSectionWidth;
+let middleSectionWidth;
+let rightSectionWidth;
 let innerRectWidth;
 let innerRectHeight;
 
@@ -90,7 +92,7 @@ function setup() {
 
     do {
       overlapping = false;
-      x = random(0, sectionWidth - images[i].width);
+      x = random(0, leftSectionWidth - images[i].width);
       y = random(0, height - images[i].height);
 
       for (let pos of positions) {
@@ -116,8 +118,7 @@ function calculateWeights() {
   leftWeight = 0;
   rightWeight = 0;
 
-  // Define boundaries of the inner rectangle
-  let innerRectX = sectionWidth + (sectionWidth - innerRectWidth) / 2;
+  let innerRectX = leftSectionWidth + (middleSectionWidth - innerRectWidth) / 2;
   let innerRectY = (height - innerRectHeight) / 2;
   let sectionWidthInner = innerRectWidth / 6;
 
@@ -125,14 +126,12 @@ function calculateWeights() {
     let shapeCenterX = shape.x + shape.img.width / 2;
     let shapeCenterY = shape.y + shape.img.height / 2;
 
-    // Only consider shapes that are inside the inner rectangle
     if (shapeCenterX > innerRectX && shapeCenterX < innerRectX + innerRectWidth &&
         shapeCenterY > innerRectY && shapeCenterY < innerRectY + innerRectHeight) {
       
       let relativeX = shapeCenterX - innerRectX;
       let sectionIndex = Math.floor(relativeX / sectionWidthInner) + 1;
 
-      // Weight multipliers for sections (1 and 6 are heaviest, 3 and 4 are lightest)
       let multiplier;
       if (sectionIndex === 1 || sectionIndex === 6) {
         multiplier = 3;
@@ -144,7 +143,6 @@ function calculateWeights() {
 
       let weightedContribution = shape.weight * multiplier;
 
-      // Add to left or right weight based on the position of the section within the inner rectangle
       if (relativeX < innerRectWidth / 2) {
         leftWeight += weightedContribution;
       } else {
@@ -158,21 +156,21 @@ function calculateWeights() {
 
 function draw() {
   background(240);
-  sectionWidth = width / 3;
+  updateSectionDimensions();
 
   fill(255, 200, 200);
-  rect(0, 0, sectionWidth, height);
+  rect(0, 0, leftSectionWidth, height);
 
   fill(200, 255, 200);
-  rect(sectionWidth, 0, sectionWidth, height);
+  rect(leftSectionWidth, 0, middleSectionWidth, height);
 
   fill(200, 200, 255);
-  rect(2 * sectionWidth, 0, sectionWidth, height);
+  rect(leftSectionWidth + middleSectionWidth, 0, rightSectionWidth, height);
 
   fill(150, 150, 200, 100);
-  innerRectWidth = sectionWidth * 0.8;
+  innerRectWidth = middleSectionWidth * 0.8;
   innerRectHeight = innerRectWidth * (11 / 13);
-  let innerRectX = sectionWidth + (sectionWidth - innerRectWidth) / 2;
+  let innerRectX = leftSectionWidth + (middleSectionWidth - innerRectWidth) / 2;
   let innerRectY = (height - innerRectHeight) / 2;
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
@@ -207,13 +205,15 @@ function mouseReleased() {
 }
 
 function updateSectionDimensions() {
-  sectionWidth = width / 3;
-  innerRectWidth = sectionWidth * 0.8;
+  leftSectionWidth = width / 4;
+  middleSectionWidth = width / 2;
+  rightSectionWidth = width / 4;
+  innerRectWidth = middleSectionWidth * 0.8;
   innerRectHeight = innerRectWidth * (11 / 13);
 }
 
 function drawSeesaw() {
-  let scaleX = 2 * sectionWidth + (sectionWidth - 100) / 2;
+  let scaleX = leftSectionWidth + middleSectionWidth + (rightSectionWidth - 100) / 2;
   let scaleY = (height - 100) / 2;
   let scaleWidth = 100;
   let baseHeight = 5;
