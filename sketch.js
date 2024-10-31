@@ -105,7 +105,7 @@ function draw() {
   rect(innerRectX, innerRectY, innerRectWidth, innerRectHeight);
 
   // Calculate dynamic scale based on the current inner rectangle height
-  let scale = innerRectHeight / originalRectHeight*0.009;
+  let scale = innerRectHeight / originalRectHeight * 0.09;
 
   for (let shape of shapes) {
     shape.updateSize(scale);  // Dynamically resize based on rectangle scale
@@ -125,6 +125,7 @@ function mousePressed() {
   for (let i = shapes.length - 1; i >= 0; i--) {
     if (shapes[i].isMouseOver()) {
       draggingShape = shapes[i];
+      console.log(`Started dragging shape at (${shapes[i].x.toFixed(1)}, ${shapes[i].y.toFixed(1)})`);
       shapes.push(shapes.splice(i, 1)[0]);
       break;
     }
@@ -133,6 +134,7 @@ function mousePressed() {
 
 function mouseReleased() {
   if (draggingShape) {
+    console.log(`Stopped dragging shape at (${draggingShape.x.toFixed(1)}, ${draggingShape.y.toFixed(1)})`);
     calculateWeights();
     draggingShape = null;
   }
@@ -199,7 +201,7 @@ class DraggableShape {
     this.originalHeight = img.height;
     this.width = img.width;
     this.height = img.height;
-    this.weight = this.originalWidth * this.originalHeight * 0.1; // Sample weight based on area
+    this.weight = this.originalWidth * this.originalHeight * 0.1;
   }
 
   updateSize(scale) {
