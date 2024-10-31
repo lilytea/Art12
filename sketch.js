@@ -55,33 +55,41 @@ function setup() {
 }
 
 function calculateWeights() {
+  // Reset weights before recalculating
   leftWeight = 0;
   rightWeight = 0;
 
-  let rectX = sideSectionWidth + (middleSectionWidth - rectWidth) / 2;
-  let sectionWidth = rectWidth / 6;
-
   for (let shape of shapes) {
-    if (shape.onCanvas()) {
-      // Calculate the overlap of the shape in each section
-      let overlapSections = calculateSectionOverlap(shape, rectX, sectionWidth);
+    // Calculate the center of the shape
+    let shapeCenterX = shape.x + shape.img.width / 2;
 
-      // For each section the shape overlaps, apply a weighted contribution based on overlap percentage
-      for (let section of overlapSections) {
-        let weightedContribution = shape.weight * section.percentage;
-        let positionMultiplier = (section.index === 1 || section.index === 6) ? 3 : (section.index === 2 || section.index === 5) ? 2 : 1;
-        let adjustedWeight = weightedContribution * positionMultiplier;
+    // Calculate the boundaries for the middle section
+    let leftBound = sectionWidth;
+    let rightBound = 2 * sectionWidth;
 
-        // Assign weight to left or right based on section
-        if (section.index <= 3) {
-          leftWeight += adjustedWeight;
-        } else {
-          rightWeight += adjustedWeight;
-        }
-      }
+    // Check if the shape is in the left, middle, or right section
+    if (shapeCenterX < leftBound) {
+      // Shape is entirely in the left section
+      leftWeight += shape.weight;
+    } else if (shapeCenterX > rightBound) {
+      // Shape is entirely in the right section
+      rightWeight += shape.weight;
+    } else {
+      // Shape is in the middle section; split the weight proportionally
+      let overlapLeft = Math.max(0, leftBound - shape.x);
+      let overlapRight = Math.max(0, shape.x + shape.img.width - rightBound);
+      let overlapMiddle = shape.img.width - overlapLeft - overlapRight;
+
+      // Accumulate weights based on overlap percentage
+      leftWeight += shape.weight * (overlapLeft / shape.img.width);
+      rightWeight += shape.weight * (overlapRight / shape.img.width);
     }
   }
+
+  // Log weights to ensure they’re correctly calculated
+  console.log("Left Weight:", leftWeight, "Right Weight:", rightWeight);
 }
+
 
 
 
