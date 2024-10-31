@@ -58,36 +58,31 @@ function calculateWeights() {
   leftWeight = 0;
   rightWeight = 0;
 
+  let rectX = sideSectionWidth + (middleSectionWidth - rectWidth) / 2;
+  let sectionWidth = rectWidth / 6;
+
   for (let shape of shapes) {
-    // Calculate the middle section bounds
-    let leftBound = sectionWidth;
-    let rightBound = 2 * sectionWidth;
-    
-    // Determine if shape is in the left, middle, or right section
-    let shapeCenterX = shape.x + shape.img.width / 2;
+    if (shape.onCanvas()) {
+      // Calculate the overlap of the shape in each section
+      let overlapSections = calculateSectionOverlap(shape, rectX, sectionWidth);
 
-    // If the shape is primarily in the left section
-    if (shapeCenterX < leftBound) {
-      leftWeight += shape.weight;
-    }
-    // If the shape is primarily in the right section
-    else if (shapeCenterX > rightBound) {
-      rightWeight += shape.weight;
-    }
-    // If the shape is in the middle section, divide its weight
-    else {
-      // Calculate overlap percentage with each side
-      let overlapLeft = Math.max(0, leftBound - shape.x);
-      let overlapRight = Math.max(0, shape.x + shape.img.width - rightBound);
-      let overlapMiddle = shape.img.width - overlapLeft - overlapRight;
+      // For each section the shape overlaps, apply a weighted contribution based on overlap percentage
+      for (let section of overlapSections) {
+        let weightedContribution = shape.weight * section.percentage;
+        let positionMultiplier = (section.index === 1 || section.index === 6) ? 3 : (section.index === 2 || section.index === 5) ? 2 : 1;
+        let adjustedWeight = weightedContribution * positionMultiplier;
 
-      // Weight based on overlap
-      leftWeight += (shape.weight * (overlapLeft / shape.img.width));
-      rightWeight += (shape.weight * (overlapRight / shape.img.width));
+        // Assign weight to left or right based on section
+        if (section.index <= 3) {
+          leftWeight += adjustedWeight;
+        } else {
+          rightWeight += adjustedWeight;
+        }
+      }
     }
   }
-  console.log("Left Weight:", leftWeight, "Right Weight:", rightWeight);
 }
+
 
 
 function draw() {
