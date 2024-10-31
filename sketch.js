@@ -10,7 +10,7 @@ let innerRectWidth;
 let innerRectHeight;
 
 let images = [];
-let scaleFactor = 0.09;
+let scaleFactor = 0.19;
 
 // Original rectangle dimensions for scaling reference
 let originalRectHeight = 220;
