@@ -97,7 +97,7 @@ function draw() {
   fill(245, 245, 220);
   rect(leftSectionWidth, 0, middleSectionWidth, height);
 
-  fill(245, 2045, 220);
+  fill(245, 245, 220);
   rect(leftSectionWidth + middleSectionWidth, 0, rightSectionWidth, height);
 
   fill(245, 245, 220);
