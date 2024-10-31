@@ -105,7 +105,7 @@ function mousePressed() {
   for (let i = shapes.length - 1; i >= 0; i--) {
     if (shapes[i].isMouseOver()) {
       draggingShape = shapes[i];
-      console.log(`Clicked shape at (${shapes[i].x.toFixed(1)}, ${shapes[i].y.toFixed(1)}) - Weight: ${shapes[i].weight.toFixed(2)}`);
+      console.log(`Started dragging shape at (${shapes[i].x.toFixed(1)}, ${shapes[i].y.toFixed(1)})`);
       shapes.push(shapes.splice(i, 1)[0]);
       break;
     }
@@ -114,8 +114,9 @@ function mousePressed() {
 
 function mouseReleased() {
   if (draggingShape) {
+    console.log(`Stopped dragging shape at (${draggingShape.x.toFixed(1)}, ${draggingShape.y.toFixed(1)})`);
     calculateWeights();
-    draggingShape = null;
+    draggingShape = null; // Stop dragging
   }
 }
 
