@@ -116,14 +116,20 @@ function calculateWeights() {
   leftWeight = 0;
   rightWeight = 0;
 
+  // Define boundaries of the inner rectangle
+  let innerRectX = sectionWidth + (sectionWidth - innerRectWidth) / 2;
+  let innerRectY = (height - innerRectHeight) / 2;
+  let sectionWidthInner = innerRectWidth / 6;
+
   for (let shape of shapes) {
     let shapeCenterX = shape.x + shape.img.width / 2;
-    let leftBound = sectionWidth;
-    let rightBound = 2 * sectionWidth;
+    let shapeCenterY = shape.y + shape.img.height / 2;
 
-    if (shapeCenterX > leftBound && shapeCenterX < rightBound) {
-      let sectionWidthInner = innerRectWidth / 6;
-      let relativeX = shapeCenterX - leftBound;
+    // Only consider shapes that are inside the inner rectangle
+    if (shapeCenterX > innerRectX && shapeCenterX < innerRectX + innerRectWidth &&
+        shapeCenterY > innerRectY && shapeCenterY < innerRectY + innerRectHeight) {
+      
+      let relativeX = shapeCenterX - innerRectX;
       let sectionIndex = Math.floor(relativeX / sectionWidthInner) + 1;
 
       // Weight multipliers for sections (1 and 6 are heaviest, 3 and 4 are lightest)
@@ -138,7 +144,7 @@ function calculateWeights() {
 
       let weightedContribution = shape.weight * multiplier;
 
-      // Divide the weight contribution based on whether it's more on the left or right
+      // Add to left or right weight based on the position of the section within the inner rectangle
       if (relativeX < innerRectWidth / 2) {
         leftWeight += weightedContribution;
       } else {
@@ -187,7 +193,6 @@ function mousePressed() {
   for (let i = shapes.length - 1; i >= 0; i--) {
     if (shapes[i].isMouseOver()) {
       draggingShape = shapes[i];
-      console.log(`Started dragging shape at (${shapes[i].x.toFixed(1)}, ${shapes[i].y.toFixed(1)})`);
       shapes.push(shapes.splice(i, 1)[0]);
       break;
     }
@@ -196,7 +201,6 @@ function mousePressed() {
 
 function mouseReleased() {
   if (draggingShape) {
-    console.log(`Stopped dragging shape at (${draggingShape.x.toFixed(1)}, ${draggingShape.y.toFixed(1)})`);
     calculateWeights();
     draggingShape = null;
   }
